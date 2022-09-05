@@ -1,0 +1,25 @@
+<div class="activities">
+    <div class="activities__header">
+        <h2>Recent Activities</h2>
+    </div>
+    {% for user in users %}
+    <div class="activities__box">
+        <div class="activities__boxHeader roomListRoom__header">
+            <a href="{% url 'login' %}" class="roomListRoom__author">
+                <div class="avatar avatar--small">
+                    <img src="" />
+                </div>
+                <p>
+                    @{{user.username}}
+                    <span>online: {{user.last_login|timesince}} ago</span>
+                </p>
+            </a>
+
+        </div>
+        <div class="activities__boxContent">
+            <p> <a href="">{{user.bio}}</a></p>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
