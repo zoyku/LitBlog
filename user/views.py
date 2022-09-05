@@ -4,10 +4,12 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import Book, Post, Users
+from .models import Book, Users
+from post.models import Post
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
-from .forms import UserRegisterForm, PostForm
+from .forms import UserRegisterForm
+from post.forms import PostForm
 from django.utils.decorators import method_decorator
 
 
@@ -82,87 +84,3 @@ class UserLogoutView(View):
         logout(request)
         return redirect('home')
 
-
-class CreatePostView(View):
-    @method_decorator(login_required(login_url='login'))
-    def get(self, request):
-        form = PostForm()
-        return render(request, 'user/post_form.html', {"form": form})
-
-    @method_decorator(login_required(login_url='login'))
-    @method_decorator(csrf_protect)
-    def post(self, request):
-        form = PostForm(request.POST)
-        book_name = request.POST.get('book')
-        book, created = Book.objects.get_or_create(name=book_name)
-
-        post = Post.objects.create(
-            owner=request.user,
-            book=book,
-            name=request.POST.get('name'),
-            body=request.POST.get('body'),
-        )
-
-        if post is not None:
-            return redirect('home')
-
-        return render(request, 'user/post_form.html', {"form": form})
-
-
-class PostView(View):
-    def get(self, request, p):
-        post = Post.objects.get(id=p)
-        return render(request, 'user/post.html', {'post': post})
-
-
-class UpdatePostView(View):
-    @method_decorator(login_required(login_url='login'))
-    def get(self, request, p):
-        post = Post.objects.get(id=p)
-        form = PostForm(instance=post)
-        books = Book.objects.all()
-
-        context = {'form': form, 'books': books, 'post': post}
-        return render(request, 'user/post_form.html', context)
-
-    @method_decorator(login_required(login_url='login'))
-    @method_decorator(csrf_protect)
-    def post(self, request, p):
-        post = Post.objects.get(id=p)
-        form = PostForm(instance=post)
-        books = Book.objects.all()
-        if self.request.user != post.owner:
-            return HttpResponse('You cannot make changes. You are not the owner of the post.')
-
-        book_name = request.POST.get('book')
-        book, created = Book.objects.get_or_create(name=book_name)
-
-        post.book = book,
-        post.name = request.POST.get('name'),
-        post.body = request.POST.get('body'),
-        post.save()
-
-        if post is not None:
-            return redirect('home')
-
-        context = {'form': form, 'books': books, 'post': post}
-        return render(request, 'user/post_form.html', context)
-
-
-class DeletePostView(View):
-    @method_decorator(login_required(login_url='login'))
-    def get(self, request, p):
-        post = Post.objects.get(id=p)
-
-        return render(request, 'user/delete_post.html', {'obj': post})
-
-    @method_decorator(login_required(login_url='login'))
-    @method_decorator(csrf_protect)
-    def post(self, request, p):
-        post = Post.objects.get(id=p)
-
-        if post is not None:
-            post.delete()
-            return redirect('home')
-
-        return render(request, 'user/delete_post.html', {'obj': post})
