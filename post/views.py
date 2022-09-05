@@ -16,7 +16,7 @@ class CreatePostView(View):
     @method_decorator(login_required(login_url='login'))
     def get(self, request):
         form = PostForm()
-        return render(request, 'user/post_form.html', {"form": form})
+        return render(request, 'post/post_form.html', {"form": form})
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
@@ -35,13 +35,13 @@ class CreatePostView(View):
         if post is not None:
             return redirect('home')
 
-        return render(request, 'user/post_form.html', {"form": form})
+        return render(request, 'post/post_form.html', {"form": form})
 
 
 class PostView(View):
     def get(self, request, p):
         post = Post.objects.get(id=p)
-        return render(request, 'user/post.html', {'post': post})
+        return render(request, 'post/post.html', {'post': post})
 
 
 class UpdatePostView(View):
@@ -52,7 +52,7 @@ class UpdatePostView(View):
         books = Book.objects.all()
 
         context = {'form': form, 'books': books, 'post': post}
-        return render(request, 'user/post_form.html', context)
+        return render(request, 'post/post_form.html', context)
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)

@@ -26,7 +26,7 @@ class HomeView(View):
             param = ''
 
         posts = Post.objects.filter(Q(book__name__icontains=param) |
-                                     Q(name__icontains=param))
+                                    Q(name__icontains=param))
         books = Book.objects.all()
         users = Users.objects.all()
         context = {'posts': posts, 'books': books, 'users': users}
