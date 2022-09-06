@@ -6,4 +6,10 @@ from .models import Users
 class UserRegisterForm(UserCreationForm):
     class Meta:
         model = Users
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['name', 'username', 'email', 'password1', 'password2']
+
+
+class UserEditForm(ModelForm):
+    class Meta:
+        model = Users
+        fields = ['photo', 'name', 'username', 'email', 'bio']

@@ -1,0 +1,29 @@
+<div class="participants" style="margin: 20px 100px 20px 120px; width: 58.5%; align-self: center">
+    <h3 class="participants__top">Comments</h3>
+    <div class="participants__list scroll">
+        {% for comment in comments %}
+            <a href="" class="participant">
+                <div class="avatar avatar--medium">
+                    <img src="{{ comment.user.avatar.url }}"/>
+                </div>
+                <span>@{{ comment.owner.username }}</span>
+            </a>
+            <div class="participant">
+                <p>{{ comment.body }} </p>
+            </div>
+        {% endfor %}
+        <form class="form" action="" method="POST">
+            {% csrf_token %}
+
+            <div class="form__group">
+                <label for="room_description"></label>
+                {{ form.body }}
+            </div>
+
+            <div class="form__action">
+                <a class="btn btn--dark" href="{% url 'post' post.id %}">Cancel</a>
+                <button class="btn btn--main" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>

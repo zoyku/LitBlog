@@ -8,9 +8,10 @@ from django.contrib.auth.models import AbstractUser
 class Users(AbstractUser):
     name = models.CharField(max_length=200, null=True)
     email = models.EmailField(unique=True, null=True)
-    bio = models.TextField(null=False, default="About")
+    bio = models.TextField(null=True)
     updated = models.DateTimeField(auto_now=True)
-    photo = models.ImageField(default="default-avatar.jpg")
+    photo = models.ImageField(default="avatar.svg")
+    online = models.BooleanField(default=0)
 
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'

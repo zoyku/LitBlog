@@ -5,19 +5,28 @@
     {% for user in users %}
     <div class="activities__box">
         <div class="activities__boxHeader roomListRoom__header">
-            <a href="{% url 'login' %}" class="roomListRoom__author">
-                <div class="avatar avatar--small">
-                    <img src="" />
+            <a href="{% url 'profile' user.id %}" class="roomListRoom__author">
+            {% if user.online %}
+                <div class="avatar avatar--small active">
+                    <img src="../../static/images{{user.photo.url}}" />
                 </div>
                 <p>
                     @{{user.username}}
-                    <span>online: {{user.last_login|timesince}} ago</span>
+                        <span>online</span>
+            {% else %}
+                <div class="avatar avatar--small">
+                    <img src="../../static/images{{user.photo.url}}" />
+                </div>
+                <p>
+                    @{{user.username}}
+                        <span>offline</span>
+            {% endif %}
                 </p>
             </a>
 
         </div>
         <div class="activities__boxContent">
-            <p> <a href="">{{user.bio}}</a></p>
+            <p>{{user.bio}}</p>
         </div>
     </div>
     {% endfor %}

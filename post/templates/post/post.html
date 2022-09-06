@@ -15,7 +15,7 @@
               </path>
             </svg>
           </a>
-          <h3>Post</h3>
+          <h3>Home</h3>
         </div>
         {% if post.owner == request.user %}
         <div class="room__topRight">
@@ -74,6 +74,8 @@
           </div>
         </div>
       </div>
+
+
     </div>
 
       <!--   Start -->
@@ -97,4 +99,8 @@
       <!--  End -->
   </div>
 </main>
+
+    {% include 'post/comment.html' %}
 {% endblock content %}
+
+

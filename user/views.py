@@ -8,7 +8,7 @@ from .models import Book, Users
 from post.models import Post
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, UserEditForm
 from post.forms import PostForm
 from django.utils.decorators import method_decorator
 
@@ -50,6 +50,8 @@ class UserLoginView(View):
             user = authenticate(request, email=email, password=password)
 
             if user is not None:
+                user.online = 1
+                user.save()
                 login(request, user)
                 return redirect('home')
             else:
@@ -71,6 +73,8 @@ class RegisterView(View):
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
+            user.online = 1
+            user.save()
             login(request, user)
             return redirect('home')
         else:
@@ -81,6 +85,38 @@ class RegisterView(View):
 
 class UserLogoutView(View):
     def get(self, request):
+        request.user.online = 0
+        request.user.save()
         logout(request)
         return redirect('home')
 
+
+class UserProfileView(View):
+    def get(self, request, p):
+        user = Users.objects.get(id=p)
+        users = Users.objects.all()
+        posts = user.post_set.all()
+        books = Book.objects.all()
+
+        context = {'user': user, 'posts': posts, 'books': books, 'users': users}
+        return render(request, 'user/profile.html', context)
+
+
+class UserProfileEditView(View):
+    @method_decorator(login_required(login_url='login'))
+    def get(self, request, p):
+        user = Users.objects.get(id=p)
+        form = UserEditForm(instance=user)
+
+        return render(request, 'user/edit_user.html', {'form': form})
+
+    @method_decorator(login_required(login_url='login'))
+    @method_decorator(csrf_protect)
+    def post(self, request, p):
+        user = Users.objects.get(id=p)
+        form = UserEditForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', p=user.id)
+
+        return render(request, 'user/edit_user.html', {'form': form})

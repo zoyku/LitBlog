@@ -1140,7 +1140,7 @@ a {
 
 .participants__list {
   padding: 2rem;
-  height: 82.5vh;
+  /*height: 82.5vh;*/
   overflow-y: scroll;
   padding-bottom: 0;
 }
