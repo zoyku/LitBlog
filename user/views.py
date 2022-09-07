@@ -1,5 +1,8 @@
+import logging
+
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -11,6 +14,8 @@ from django.views.decorators.csrf import csrf_protect
 from .forms import UserRegisterForm, UserEditForm
 from post.forms import PostForm
 from django.utils.decorators import method_decorator
+import logging
+import logging.handlers
 
 
 # Create your views here.
@@ -20,6 +25,8 @@ class HomeView(View):
     def get(self, request):
         param = self.request.GET.get('param')
 
+        logging.debug('burda')
+
         if param is not None:
             param = param
         else:
@@ -27,9 +34,31 @@ class HomeView(View):
 
         posts = Post.objects.filter(Q(book__name__icontains=param) |
                                     Q(name__icontains=param))
+        post_paginator = Paginator(posts, 5)
         books = Book.objects.all()
+        book_paginator = Paginator(books, 10)
         users = Users.objects.all()
-        context = {'posts': posts, 'books': books, 'users': users}
+        user_paginator = Paginator(users, 7)
+        post_page = request.GET.get('post_page')
+        book_page = request.GET.get('book_page')
+        user_page = request.GET.get('user_page')
+        if post_page is not None:
+            post_page = post_page
+        else:
+            post_page = 1
+        if book_page is not None:
+            book_page = book_page
+        else:
+            book_page = 1
+        if user_page is not None:
+            user_page = user_page
+        else:
+            user_page = 1
+        post_page_obj = post_paginator.get_page(post_page)
+        book_page_obj = book_paginator.get_page(book_page)
+        user_page_obj = user_paginator.get_page(user_page)
+        context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'user_page_obj': user_page_obj,
+                   'posts': posts}
         return render(request, 'user/home.html', context)
 
 

@@ -16,6 +16,9 @@ class Users(AbstractUser):
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
 
+    class Meta:
+        ordering = ['-updated', '-date_joined']
+
 
 class Book(models.Model):
     name = models.CharField(max_length=200)

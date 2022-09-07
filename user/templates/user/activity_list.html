@@ -2,7 +2,7 @@
     <div class="activities__header">
         <h2>Recent Activities</h2>
     </div>
-    {% for user in users %}
+    {% for user in user_page_obj %}
     <div class="activities__box">
         <div class="activities__boxHeader roomListRoom__header">
             <a href="{% url 'profile' user.id %}" class="roomListRoom__author">
@@ -30,5 +30,23 @@
         </div>
     </div>
     {% endfor %}
+
+<div class="pagination">
+    <span class="step-links">
+        {% if user_page_obj.has_previous %}
+            <a href="{% url 'home' %}?user_page=1">First</a>
+            <a href="{% url 'home' %}?user_page={{ user_page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+        <br>
+        <span class="current">
+            <div style="margin-left: 15px"> Page {{ user_page_obj.number }} of {{ user_page_obj.paginator.num_pages }} </div>
+        </span>
+        <br>
+        {% if user_page_obj.has_next %}
+            <a href="{% url 'home' %}?user_page={{ user_page_obj.next_page_number }}">Next</a>
+            <a href="{% url 'home' %}?user_page={{ user_page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </span>
+</div>
 
 </div>
