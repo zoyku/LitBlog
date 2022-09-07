@@ -4,7 +4,6 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import Book, Users
@@ -12,7 +11,6 @@ from post.models import Post
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from .forms import UserRegisterForm, UserEditForm, UserSecurityForm
-from post.forms import PostForm
 from django.utils.decorators import method_decorator
 import logging
 import logging.handlers
@@ -57,8 +55,8 @@ class HomeView(View):
         post_page_obj = post_paginator.get_page(post_page)
         book_page_obj = book_paginator.get_page(book_page)
         user_page_obj = user_paginator.get_page(user_page)
-        context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'user_page_obj': user_page_obj,
-                   'posts': posts}
+        context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj,
+                   'user_page_obj': user_page_obj, 'posts': posts}
         return render(request, 'user/home.html', context)
 
 

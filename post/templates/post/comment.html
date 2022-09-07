@@ -1,4 +1,5 @@
-<div class="participants" style="margin: 20px 100px 20px 120px; width: 58.5%; align-self: center">
+<div style="padding: 20px 0 20px 120px">
+<div class="participants" style="width: 63.5%">
     <h3 class="participants__top">Comments</h3>
     <div class="participants__list scroll">
         {% for comment in comments %}
@@ -21,9 +22,10 @@
             </div>
 
             <div class="form__action">
-                <a class="btn btn--dark" href="{% url 'post' post.id %}">Cancel</a>
-                <button class="btn btn--main" type="submit">Submit</button>
+                <a class="btn btn--dark" href="{% url 'post' post.id %}" style="margin-bottom: 10px">Cancel</a>
+                <button class="btn btn--main" type="submit" style="margin-bottom: 10px">Submit</button>
             </div>
         </form>
     </div>
+</div>
 </div>

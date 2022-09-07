@@ -59,9 +59,15 @@
           <div class="room__hosted">
             <p>Owner</p>
             <a href="" class="room__author">
-              <div class="avatar avatar--small">
-                <img src="{{post.owner.photo.url}}" />
-              </div>
+                {% if post.owner.online %}
+                    <div class="avatar avatar--small active">
+                        <img src="../../static/images{{ post.owner.photo.url }}"/>
+                    </div>
+                {% else %}
+                    <div class="avatar avatar--small">
+                        <img src="../../static/images{{ post.owner.photo.url }}"/>
+                    </div>
+                {% endif %}
               <span>@{{post.owner.username}}</span>
             </a>
           </div>
@@ -84,12 +90,18 @@
           <div class="participants__list scroll">
               {% for post in post.owner.post_set.all %}
                   <a href="" class="participant">
-                      <div class="avatar avatar--medium">
-                          <img src="{{ user.avatar.url }}"/>
-                      </div>
+                      {% if post.owner.online %}
+                          <div class="avatar avatar--medium active">
+                              <img src="../../static/images{{ post.owner.photo.url }}"/>
+                          </div>
+                      {% else %}
+                          <div class="avatar avatar--medium">
+                              <img src="../../static/images{{ post.owner.photo.url }}"/>
+                          </div>
+                      {% endif %}
                       <h6>{{ post.name }}</h6>
                   </a>
-                  <a href="" class="participant">
+                  <a href="{% url 'profile' post.owner.id %}" class="participant">
                       <span>@{{ post.owner.username }}</span>
                       <p>{{ post.body | truncatechars:25 }} </p>
                   </a>
