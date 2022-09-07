@@ -12,4 +12,10 @@ class UserRegisterForm(UserCreationForm):
 class UserEditForm(ModelForm):
     class Meta:
         model = Users
-        fields = ['photo', 'name', 'username', 'email', 'bio']
+        fields = ['photo', 'name', 'username', 'bio']
+
+
+class UserSecurityForm(UserCreationForm):
+    class Meta:
+        model = Users
+        fields = ['email', 'password1', 'password2']
