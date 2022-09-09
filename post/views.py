@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -117,4 +118,46 @@ class DeletePostView(View):
             return redirect('home')
 
         return render(request, 'post/delete_post.html', {'obj': post})
+
+
+class RatePostView(View):
+
+    @method_decorator(login_required(login_url='login'))
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        p = request.POST.get('p', None)
+        rate = request.POST.get('rate', None)
+
+        post = Post.objects.get(id=p)
+        if int(rate) == 0:
+            post.rating = post.rating - 1
+            post.likes.remove(request.user)
+            post.save()
+        elif int(rate) == 1:
+            post.rating = post.rating + 1
+            post.likes.add(request.user)
+            post.save()
+
+        return JsonResponse({'rate': post.rating})
+
+
+class DeleteCommentView(View):
+    @method_decorator(login_required(login_url='login'))
+    def get(self, request, p):
+        comment = Comment.objects.get(id=p)
+
+        return render(request, 'post/delete_comment.html', {'obj': comment})
+
+    @method_decorator(login_required(login_url='login'))
+    @method_decorator(csrf_protect)
+    def post(self, request, p):
+        comment = Comment.objects.get(id=p)
+        p = comment.post_id
+
+        if comment is not None:
+            comment.delete()
+            return redirect('post', p=p)
+
+        return render(request, 'post/delete_comment.html', {'obj': comment})
+
 

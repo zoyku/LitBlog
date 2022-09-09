@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% csrf_token %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <main class="profile-page layout layout--2">
   <div class="container">
     <!-- Room Start -->
@@ -61,17 +63,38 @@
             <a href="" class="room__author">
                 {% if post.owner.online %}
                     <div class="avatar avatar--small active">
-                        <img src="../../static/images{{ post.owner.photo.url }}"/>
+                        <img src="../../../static/images{{ post.owner.photo.url }}"/>
                     </div>
                 {% else %}
                     <div class="avatar avatar--small">
-                        <img src="../../static/images{{ post.owner.photo.url }}"/>
+                        <img src="../../../static/images{{ post.owner.photo.url }}"/>
                     </div>
                 {% endif %}
               <span>@{{post.owner.username}}</span>
             </a>
           </div>
           <span class="room__topics">{{post.book}}</span>
+            {% if request.user.is_authenticated %}
+                {% csrf_token %}
+                {% if request.user in post.likes.all %}
+                    <div style="display: flex;">
+                        <div id="rating-number">{{ post.rating }}</div>
+                        <button class="rate-button" onclick="rate_post({{ post.id }}, 0)"
+                                style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="liked" class="fa-sharp fa-solid fa-heart fa-custom-style"></i></button>
+                    </div>
+                {% else %}
+                    <div style="display: flex;">
+                        <div id="rating-number">{{ post.rating }}</div>
+                        <button class="rate-button" onclick="rate_post({{ post.id }}, 1)"
+                                style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="disliked" class="fa-sharp fa-regular fa-heart fa-custom-style"></i></button>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div>
+                    {{ post.rating }}
+                    <i class="fa-sharp fa-solid fa-heart fa-custom-style"></i>
+                </div>
+            {% endif %}
         </div>
 
         <div class="room__conversation">
@@ -80,23 +103,21 @@
           </div>
         </div>
       </div>
-
-
     </div>
 
       <!--   Start -->
       <div class="participants" style="flex-basis: 27%;">
           <h3 class="participants__top">Posts</h3>
           <div class="participants__list scroll">
-              {% for post in post.owner.post_set.all %}
+              {% for post in post.owner.post_owner.all %}
                   <a href="" class="participant">
                       {% if post.owner.online %}
                           <div class="avatar avatar--medium active">
-                              <img src="../../static/images{{ post.owner.photo.url }}"/>
+                              <img src="../../../static/images{{ post.owner.photo.url }}"/>
                           </div>
                       {% else %}
                           <div class="avatar avatar--medium">
-                              <img src="../../static/images{{ post.owner.photo.url }}"/>
+                              <img src="../../../static/images{{ post.owner.photo.url }}"/>
                           </div>
                       {% endif %}
                       <h6>{{ post.name }}</h6>
@@ -113,6 +134,31 @@
 </main>
 
     {% include 'post/comment.html' %}
+    <style>
+        .rate-button:hover{
+            transform: scale(1.3);
+        }
+    </style>
+
+    <script>
+        function rate_post(p, rate){
+            $.ajax({
+                type: 'POST',
+                data: { "p": p,
+                        "rate": rate,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                url: "{% url 'rate-post' %}",
+                success(response){
+                    $("#rating-number").html(response.rate)
+                },
+                error(data){
+                    console.log(data)
+                },
+            });
+        }
+    </script>
 {% endblock content %}
+
 
 

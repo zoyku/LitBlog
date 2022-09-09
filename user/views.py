@@ -122,7 +122,7 @@ class UserProfileView(View):
     def get(self, request, p):
         user = Users.objects.get(id=p)
         users = Users.objects.all()
-        posts = user.post_set.all()
+        posts = user.post_owner.all()
         books = Book.objects.all()
 
         post_paginator = Paginator(posts, 5)
