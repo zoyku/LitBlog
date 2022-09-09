@@ -1,7 +1,7 @@
 {% for post in post_page_obj %}
 <div class="roomListRoom">
     <div class="roomListRoom__header">
-        <a href="" class="roomListRoom__author">
+        <a href="{% url 'profile' post.owner_id %}" class="roomListRoom__author">
             {% if post.owner.online %}
             <div class="avatar avatar--small active">
                 <img src="../../static/images{{ post.owner.photo.url }}" />
@@ -38,17 +38,12 @@
 <div class="pagination">
     <span class="step-links">
         {% if post_page_obj.has_previous %}
-            <a href="{% url 'home' %}?post_page=1">First</a>
-            <a href="{% url 'home' %}?post_page={{ post_page_obj.previous_page_number }}">Previous</a>
+            <a href="{% url 'home' %}?post_page=1">&laquo;</a>
+            <a href="{% url 'home' %}?post_page={{ post_page_obj.previous_page_number }}">&lt;</a>
         {% endif %}
-        <br>
-        <span class="current">
-            Page {{ post_page_obj.number }} of {{ post_page_obj.paginator.num_pages }}
-        </span>
-        <br>
         {% if post_page_obj.has_next %}
-            <a href="{% url 'home' %}?post_page={{ post_page_obj.next_page_number }}">Next</a>
-            <a href="{% url 'home' %}?post_page={{ post_page_obj.paginator.num_pages }}">Last</a>
+            <a href="{% url 'home' %}?post_page={{ post_page_obj.next_page_number }}">&gt;</a>
+            <a href="{% url 'home' %}?post_page={{ post_page_obj.paginator.num_pages }}">&raquo;</a>
         {% endif %}
     </span>
 </div>

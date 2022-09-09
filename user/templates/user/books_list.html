@@ -4,7 +4,7 @@
     </div>
     <ul class="topics__list">
         <li>
-            <a href="{% url 'home' %}" class="active">All <span>{{posts.count}}</span></a>
+            <a href="{% url 'home' %}" class="active">All:<span>{{posts.count}}</span></a>
         </li>
         {% for book in book_page_obj %}
         <li>
@@ -24,17 +24,16 @@
 <div class="pagination">
     <span class="step-links">
         {% if book_page_obj.has_previous %}
-            <a href="{% url 'home' %}?book_page=1">First</a>
-            <a href="{% url 'home' %}?book_page={{ book_page_obj.previous_page_number }}">Previous</a>
+            <a href="{% url 'home' %}?book_page=1">&laquo;</a>
+            <a href="{% url 'home' %}?book_page={{ book_page_obj.previous_page_number }}">&lt;</a>
         {% endif %}
         <br>
         <span class="current">
-            Page {{ book_page_obj.number }} of {{ book_page_obj.paginator.num_pages }}
         </span>
         <br>
         {% if book_page_obj.has_next %}
-            <a href="{% url 'home' %}?book_page={{ book_page_obj.next_page_number }}">Next</a>
-            <a href="{% url 'home' %}?book_page={{ book_page_obj.paginator.num_pages }}">Last</a>
+            <a href="{% url 'home' %}?book_page={{ book_page_obj.next_page_number }}">&gt;</a>
+            <a href="{% url 'home' %}?book_page={{ book_page_obj.paginator.num_pages }}">&raquo;</a>
         {% endif %}
     </span>
 </div>

@@ -1,16 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_protect
 
-from user.models import Book
 from .forms import PostForm, CommentForm
-from .models import Post, Comment
+from .models import Post, Comment, Book
 
 
 class CreatePostView(View):
@@ -40,18 +39,27 @@ class CreatePostView(View):
 
 
 class PostView(View):
-    def get(self, request, p):
-        post = Post.objects.get(id=p)
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
         comments = post.comment_set.all()
         form = CommentForm(request.POST)
 
-        context = {'post': post, 'comments': comments, "form": form}
+        user_id = request.user.id
+        user_likes = post.likes.all()
+        is_there = user_likes.filter(id=user_id).count()
+
+        if is_there == 1:
+            liked = 1
+        else:
+            liked = 0
+
+        context = {'post': post, 'comments': comments, "form": form, "liked": liked}
         return render(request, 'post/post.html', context)
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
-    def post(self, request, p):
-        post = Post.objects.get(id=p)
+    def post(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
         form = CommentForm(request.POST)
         comment = Comment.objects.create(
             owner=request.user,
@@ -59,18 +67,23 @@ class PostView(View):
             post=post,
             body=request.POST.get('body')
         )
+        user_id = request.user.id
+        user_likes = post.likes.all()
+        is_there = user_likes.filter(id=user_id).count()
+
+        liked = 1 if is_there == 1 else 0
 
         if comment is not None:
             return redirect('post', p=post.id)
 
-        context = {'post': post, 'comment': comment, "form": form}
+        context = {'post': post, 'comment': comment, "form": form, "liked": liked}
         return render(request, 'post/post.html', context)
 
 
 class UpdatePostView(View):
     @method_decorator(login_required(login_url='login'))
-    def get(self, request, p):
-        post = Post.objects.get(id=p)
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
         form = PostForm(instance=post)
         books = Book.objects.all()
 
@@ -79,8 +92,8 @@ class UpdatePostView(View):
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
-    def post(self, request, p):
-        post = Post.objects.get(id=p)
+    def post(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
         form = PostForm(instance=post)
         books = Book.objects.all()
         if self.request.user != post.owner:
@@ -89,13 +102,13 @@ class UpdatePostView(View):
         book_name = request.POST.get('book')
         book, created = Book.objects.get_or_create(name=book_name)
 
-        post.book = book,
-        post.name = request.POST.get('name'),
-        post.body = request.POST.get('body'),
+        post.book = book
+        post.name = request.POST.get('name')
+        post.body = request.POST.get('body')
         post.save()
 
         if post is not None:
-            return redirect('home')
+            return redirect('profile', p=post.owner_id)
 
         context = {'form': form, 'books': books, 'post': post}
         return render(request, 'post/post_form.html', context)
@@ -103,21 +116,23 @@ class UpdatePostView(View):
 
 class DeletePostView(View):
     @method_decorator(login_required(login_url='login'))
-    def get(self, request, p):
-        post = Post.objects.get(id=p)
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
 
         return render(request, 'post/delete_post.html', {'obj': post})
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
-    def post(self, request, p):
-        post = Post.objects.get(id=p)
+    def post(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
 
-        if post is not None:
-            post.delete()
-            return redirect('home')
-
-        return render(request, 'post/delete_post.html', {'obj': post})
+        post.delete()
+        book_id = post.book_id
+        book_count = Post.objects.filter(book_id=book_id).count()
+        if book_count == 0:
+            book = Book.objects.get(id=post.book_id)
+            book.delete()
+        return redirect('profile', p=post.owner_id)
 
 
 class RatePostView(View):
@@ -125,15 +140,16 @@ class RatePostView(View):
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request):
-        p = request.POST.get('p', None)
-        rate = request.POST.get('rate', None)
+        post_id = int(request.POST.get('post_id', None))
 
-        post = Post.objects.get(id=p)
-        if int(rate) == 0:
+        post = Post.objects.get(id=post_id)
+        is_liked = request.user.post_likes.filter(id=post_id).exists()
+        print(is_liked)
+        if is_liked:
             post.rating = post.rating - 1
             post.likes.remove(request.user)
             post.save()
-        elif int(rate) == 1:
+        elif not is_liked:
             post.rating = post.rating + 1
             post.likes.add(request.user)
             post.save()
@@ -143,20 +159,20 @@ class RatePostView(View):
 
 class DeleteCommentView(View):
     @method_decorator(login_required(login_url='login'))
-    def get(self, request, p):
-        comment = Comment.objects.get(id=p)
+    def get(self, request, post_id):
+        comment = get_object_or_404(Comment, id=post_id)
 
         return render(request, 'post/delete_comment.html', {'obj': comment})
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
-    def post(self, request, p):
-        comment = Comment.objects.get(id=p)
+    def post(self, request, post_id):
+        comment = get_object_or_404(Comment, id=post_id)
         p = comment.post_id
 
         if comment is not None:
             comment.delete()
-            return redirect('post', p=p)
+            return redirect('post', post_id=post_id)
 
         return render(request, 'post/delete_comment.html', {'obj': comment})
 

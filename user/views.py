@@ -6,8 +6,8 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import Book, Users
-from post.models import Post
+from .models import Users
+from post.models import Post, Book
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from .forms import UserRegisterForm, UserEditForm, UserSecurityForm
@@ -119,8 +119,8 @@ class UserLogoutView(View):
 
 
 class UserProfileView(View):
-    def get(self, request, p):
-        user = Users.objects.get(id=p)
+    def get(self, request, user_id):
+        user = Users.objects.get(id=user_id)
         users = Users.objects.all()
         posts = user.post_owner.all()
         books = Book.objects.all()
@@ -147,45 +147,45 @@ class UserProfileView(View):
         book_page_obj = book_paginator.get_page(book_page)
         user_page_obj = user_paginator.get_page(user_page)
         context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'user_page_obj': user_page_obj,
-                   'posts': posts}
+                   'posts': posts, 'user': user}
         return render(request, 'user/profile.html', context)
 
 
 class UserProfileEditView(View):
     @method_decorator(login_required(login_url='login'))
-    def get(self, request, p):
-        user = Users.objects.get(id=p)
+    def get(self, request, user_id):
+        user = Users.objects.get(id=user_id)
         form = UserEditForm(instance=user)
 
         return render(request, 'user/edit_user.html', {'form': form})
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
-    def post(self, request, p):
-        user = Users.objects.get(id=p)
+    def post(self, request, user_id):
+        user = Users.objects.get(id=user_id)
         form = UserEditForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('profile', p=user.id)
+            return redirect('profile', user_id=user.id)
 
         return render(request, 'user/edit_user.html', {'form': form})
 
 
 class UserSecurityEditView(View):
     @method_decorator(login_required(login_url='login'))
-    def get(self, request, p):
-        user = Users.objects.get(id=p)
+    def get(self, request, user_id):
+        user = Users.objects.get(id=user_id)
         form = UserSecurityForm(instance=user)
 
         return render(request, 'user/edit_user.html', {'form': form})
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
-    def post(self, request, p):
-        user = Users.objects.get(id=p)
+    def post(self, request, user_id):
+        user = Users.objects.get(id=user_id)
         form = UserSecurityForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('profile', p=user.id)
+            return redirect('profile', user_id=user.id)
 
         return render(request, 'user/edit_user.html', {'form': form})

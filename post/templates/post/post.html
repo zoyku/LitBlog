@@ -60,7 +60,7 @@
           </div>
           <div class="room__hosted">
             <p>Owner</p>
-            <a href="" class="room__author">
+            <a href="{% url 'profile' post.owner_id %}" class="room__author">
                 {% if post.owner.online %}
                     <div class="avatar avatar--small active">
                         <img src="../../../static/images{{ post.owner.photo.url }}"/>
@@ -76,19 +76,11 @@
           <span class="room__topics">{{post.book}}</span>
             {% if request.user.is_authenticated %}
                 {% csrf_token %}
-                {% if request.user in post.likes.all %}
-                    <div style="display: flex;">
+                <div style="display: flex; padding-top: 7px">
                         <div id="rating-number">{{ post.rating }}</div>
-                        <button class="rate-button" onclick="rate_post({{ post.id }}, 0)"
-                                style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="liked" class="fa-sharp fa-solid fa-heart fa-custom-style"></i></button>
+                        <button class="rate-button" onclick="rate_post({{ post.id }})"
+                                style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="liked" class="fa-sharp fa-heart {% if liked == 1 %} fa-solid {% else %} fa-regular {% endif %} fa-custom-style"></i></button>
                     </div>
-                {% else %}
-                    <div style="display: flex;">
-                        <div id="rating-number">{{ post.rating }}</div>
-                        <button class="rate-button" onclick="rate_post({{ post.id }}, 1)"
-                                style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="disliked" class="fa-sharp fa-regular fa-heart fa-custom-style"></i></button>
-                    </div>
-                {% endif %}
             {% else %}
                 <div>
                     {{ post.rating }}
@@ -99,7 +91,7 @@
 
         <div class="room__conversation">
           <div class="threads scroll">
-              <p style="padding: 10px 0">{{ post.body }}</p>
+              <p style="padding: 20px 0">{{ post.body }}</p>
           </div>
         </div>
       </div>
@@ -141,16 +133,21 @@
     </style>
 
     <script>
-        function rate_post(p, rate){
+        function rate_post(post_id){
             $.ajax({
                 type: 'POST',
-                data: { "p": p,
-                        "rate": rate,
+                data: { "post_id": post_id,
                         csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 url: "{% url 'rate-post' %}",
                 success(response){
                     $("#rating-number").html(response.rate)
+
+                    if($("#liked").hasClass("fa-solid")){
+                        $("#liked").removeClass( "fa-solid" ).addClass( "fa-regular" );
+                    } else {
+                        $("#liked").removeClass( "fa-regular" ).addClass( "fa-solid" );
+                    }
                 },
                 error(data){
                     console.log(data)

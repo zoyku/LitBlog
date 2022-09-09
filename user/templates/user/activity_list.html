@@ -3,50 +3,45 @@
         <h2>Recent Activities</h2>
     </div>
     {% for user in user_page_obj %}
-    <div class="activities__box">
-        <div class="activities__boxHeader roomListRoom__header">
-            <a href="{% url 'profile' user.id %}" class="roomListRoom__author">
-            {% if user.online %}
-                <div class="avatar avatar--small active">
-                    <img src="../../static/images{{user.photo.url}}" />
-                </div>
-                <p>
-                    @{{user.username}}
-                        <span>online</span>
-            {% else %}
-                <div class="avatar avatar--small">
-                    <img src="../../static/images{{user.photo.url}}" />
-                </div>
-                <p>
-                    @{{user.username}}
+        <div class="activities__box">
+            <div class="activities__boxHeader roomListRoom__header">
+                <a href="{% url 'profile' user.id %}" class="roomListRoom__author">
+                    {% if user.online %}
+                        <div class="avatar avatar--small active">
+                            <img src="../../static/images{{ user.photo.url }}"/>
+                        </div>
+                        <p>
+                            @{{ user.username }}
+                            <span>online</span>
+                            {% else %}
+                        <div class="avatar avatar--small">
+                            <img src="../../static/images{{ user.photo.url }}"/>
+                        </div>
+                        <p>
+                        @{{ user.username }}
                         <span>offline</span>
-            {% endif %}
-                </p>
-            </a>
+                    {% endif %}
+                    </p>
+                </a>
 
+            </div>
+            <div class="activities__boxContent">
+                <p>{{ user.bio }}</p>
+            </div>
         </div>
-        <div class="activities__boxContent">
-            <p>{{user.bio}}</p>
-        </div>
-    </div>
     {% endfor %}
 
-<div class="pagination">
+    <div class="pagination">
     <span class="step-links">
         {% if user_page_obj.has_previous %}
-            <a href="{% url 'home' %}?user_page=1">First</a>
-            <a href="{% url 'home' %}?user_page={{ user_page_obj.previous_page_number }}">Previous</a>
+            <a href="{% url 'home' %}?user_page=1">&laquo;</a>
+            <a href="{% url 'home' %}?user_page={{ user_page_obj.previous_page_number }}">&lt;</a>
         {% endif %}
-        <br>
-        <span class="current">
-            <div style="margin-left: 15px"> Page {{ user_page_obj.number }} of {{ user_page_obj.paginator.num_pages }} </div>
-        </span>
-        <br>
         {% if user_page_obj.has_next %}
-            <a href="{% url 'home' %}?user_page={{ user_page_obj.next_page_number }}">Next</a>
-            <a href="{% url 'home' %}?user_page={{ user_page_obj.paginator.num_pages }}">Last</a>
+            <a href="{% url 'home' %}?user_page={{ user_page_obj.next_page_number }}">&gt;</a>
+            <a href="{% url 'home' %}?user_page={{ user_page_obj.paginator.num_pages }}">&raquo;</a>
         {% endif %}
     </span>
-</div>
+    </div>
 
 </div>

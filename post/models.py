@@ -1,7 +1,14 @@
 from django.db import models
 
 # Create your models here.
-from user.models import Users, Book
+from user.models import Users
+
+
+class Book(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 
 class Post(models.Model):
@@ -38,3 +45,4 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.body[0:50]
+
