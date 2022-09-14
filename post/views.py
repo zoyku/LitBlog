@@ -16,12 +16,15 @@ class CreatePostView(View):
     @method_decorator(login_required(login_url='login'))
     def get(self, request):
         form = PostForm()
-        return render(request, 'post/post_form.html', {"form": form})
+        books = Book.objects.all()
+        context = {"form": form, 'books': books}
+        return render(request, 'post/post_form.html', context)
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request):
         form = PostForm(request.POST)
+        books = Book.objects.all()
         book_name = request.POST.get('book')
         book, created = Book.objects.get_or_create(name=book_name)
 
@@ -35,7 +38,9 @@ class CreatePostView(View):
         if post is not None:
             return redirect('home')
 
-        return render(request, 'post/post_form.html', {"form": form})
+        context = {"form": form, 'books': books}
+
+        return render(request, 'post/post_form.html', context)
 
 
 class PostView(View):
@@ -132,7 +137,7 @@ class DeletePostView(View):
         if book_count == 0:
             book = Book.objects.get(id=post.book_id)
             book.delete()
-        return redirect('profile', p=post.owner_id)
+        return redirect('profile', user_id=post.owner_id)
 
 
 class RatePostView(View):

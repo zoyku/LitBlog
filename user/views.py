@@ -4,7 +4,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .models import Users
 from post.models import Post, Book
@@ -120,10 +120,10 @@ class UserLogoutView(View):
 
 class UserProfileView(View):
     def get(self, request, user_id):
-        user = Users.objects.get(id=user_id)
+        user = get_object_or_404(Users, id=user_id)
         users = Users.objects.all()
         posts = user.post_owner.all()
-        books = Book.objects.all()
+        books = Book.objects.filter(post_book__owner=user)
 
         post_paginator = Paginator(posts, 5)
         book_paginator = Paginator(books, 10)
