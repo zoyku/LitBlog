@@ -23,7 +23,6 @@ class HomeView(View):
     def get(self, request):
         param = self.request.GET.get('param')
 
-        logging.debug('burda')
 
         if param is not None:
             param = param
