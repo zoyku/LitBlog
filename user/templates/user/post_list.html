@@ -21,7 +21,7 @@
         <a href="{% url 'post' post.id %}">{{post.name}}</a>
     </div>
     <div class="roomListRoom__meta">
-        <p class="roomListRoom__topic">{{post.book.name}}</p>
+        <p class="roomListRoom__topic"><a href="{% url 'home' %}?param={{post.book.name}}">{{post.book.name}}</a></p>
         <a href="" class="roomListRoom__joined">
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                 <title>user-group</title>

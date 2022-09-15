@@ -6,6 +6,8 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+
+from room.models import Room
 from .models import Users
 from post.models import Post, Book
 from django.contrib import messages
@@ -23,7 +25,6 @@ class HomeView(View):
     def get(self, request):
         param = self.request.GET.get('param')
 
-
         if param is not None:
             param = param
         else:
@@ -31,14 +32,19 @@ class HomeView(View):
 
         posts = Post.objects.filter(Q(book__name__icontains=param) |
                                     Q(name__icontains=param))
+
+        rooms = Room.objects.filter(Q(book__name__icontains=param) |
+                                    Q(name__icontains=param))
+
+        books = Book.objects.filter(name__icontains=param)
+
         post_paginator = Paginator(posts, 5)
-        books = Book.objects.all()
         book_paginator = Paginator(books, 10)
-        users = Users.objects.all()
-        user_paginator = Paginator(users, 7)
+        # users = Users.objects.all()
+        room_paginator = Paginator(rooms, 7)
         post_page = request.GET.get('post_page')
         book_page = request.GET.get('book_page')
-        user_page = request.GET.get('user_page')
+        room_page = request.GET.get('room_page')
         if post_page is not None:
             post_page = post_page
         else:
@@ -47,15 +53,15 @@ class HomeView(View):
             book_page = book_page
         else:
             book_page = 1
-        if user_page is not None:
-            user_page = user_page
+        if room_page is not None:
+            room_page = room_page
         else:
-            user_page = 1
+            room_page = 1
         post_page_obj = post_paginator.get_page(post_page)
         book_page_obj = book_paginator.get_page(book_page)
-        user_page_obj = user_paginator.get_page(user_page)
+        room_page_obj = room_paginator.get_page(room_page)
         context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj,
-                   'user_page_obj': user_page_obj, 'posts': posts}
+                   'room_page_obj': room_page_obj, 'posts': posts}
         return render(request, 'user/home.html', context)
 
 
@@ -120,16 +126,16 @@ class UserLogoutView(View):
 class UserProfileView(View):
     def get(self, request, user_id):
         user = get_object_or_404(Users, id=user_id)
-        users = Users.objects.all()
         posts = user.post_owner.all()
-        books = Book.objects.filter(post_book__owner=user)
+        books = Book.objects.filter(Q(post_book__owner=user) | Q(room__owner=user) | Q(room__participants=user)).distinct()
+        rooms = Room.objects.filter(Q(owner=user) | Q(participants=user))
 
         post_paginator = Paginator(posts, 5)
         book_paginator = Paginator(books, 10)
-        user_paginator = Paginator(users, 7)
+        room_paginator = Paginator(rooms, 7)
         post_page = request.GET.get('post_page')
         book_page = request.GET.get('book_page')
-        user_page = request.GET.get('user_page')
+        room_page = request.GET.get('room_page')
         if post_page is not None:
             post_page = post_page
         else:
@@ -138,14 +144,14 @@ class UserProfileView(View):
             book_page = book_page
         else:
             book_page = 1
-        if user_page is not None:
-            user_page = user_page
+        if room_page is not None:
+            room_page = room_page
         else:
-            user_page = 1
+            room_page = 1
         post_page_obj = post_paginator.get_page(post_page)
         book_page_obj = book_paginator.get_page(book_page)
-        user_page_obj = user_paginator.get_page(user_page)
-        context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'user_page_obj': user_page_obj,
+        room_page_obj = room_paginator.get_page(room_page)
+        context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'room_page_obj': room_page_obj,
                    'posts': posts, 'user': user}
         return render(request, 'user/profile.html', context)
 

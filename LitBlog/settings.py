@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'user.apps.UserConfig',
-    'post.apps.PostConfig'
+    'post.apps.PostConfig',
+    'room.apps.RoomConfig'
 ]
 
 MIDDLEWARE = [

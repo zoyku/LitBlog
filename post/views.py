@@ -53,10 +53,7 @@ class PostView(View):
         user_likes = post.likes.all()
         is_there = user_likes.filter(id=user_id).count()
 
-        if is_there == 1:
-            liked = 1
-        else:
-            liked = 0
+        liked = 1 if is_there == 1 else 0
 
         context = {'post': post, 'comments': comments, "form": form, "liked": liked}
         return render(request, 'post/post.html', context)
@@ -79,7 +76,7 @@ class PostView(View):
         liked = 1 if is_there == 1 else 0
 
         if comment is not None:
-            return redirect('post', p=post.id)
+            return redirect('post', post_id=post.id)
 
         context = {'post': post, 'comment': comment, "form": form, "liked": liked}
         return render(request, 'post/post.html', context)
@@ -113,7 +110,7 @@ class UpdatePostView(View):
         post.save()
 
         if post is not None:
-            return redirect('profile', p=post.owner_id)
+            return redirect('profile', user_id=post.owner_id)
 
         context = {'form': form, 'books': books, 'post': post}
         return render(request, 'post/post_form.html', context)
@@ -149,7 +146,6 @@ class RatePostView(View):
 
         post = Post.objects.get(id=post_id)
         is_liked = request.user.post_likes.filter(id=post_id).exists()
-        print(is_liked)
         if is_liked:
             post.rating = post.rating - 1
             post.likes.remove(request.user)
