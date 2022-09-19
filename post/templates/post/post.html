@@ -102,7 +102,7 @@
           <h3 class="participants__top">Posts</h3>
           <div class="participants__list scroll">
               {% for post in post.owner.post_owner.all %}
-                  <a href="" class="participant">
+                  <a href="{% url 'post' post.id %}" class="participant">
                       {% if post.owner.online %}
                           <div class="avatar avatar--medium active">
                               <img src="../../../static/images{{ post.owner.photo.url }}"/>
@@ -118,6 +118,8 @@
                       <span>@{{ post.owner.username }}</span>
                       <p>{{ post.body | truncatechars:25 }} </p>
                   </a>
+                  <hr style="height: 2px; background-color: #717171; border:none ">
+                  <br>
               {% endfor %}
           </div>
       </div>

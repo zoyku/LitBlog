@@ -17,6 +17,7 @@
                 {% endif %}
                 <p>
                     @{{room.owner.username}}
+                    <span>updated {{room.updated|timesince}} ago</span>
                     <span>created {{room.created|timesince}} ago</span>
                 </p>
             </a>

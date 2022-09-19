@@ -7,7 +7,7 @@ from user.models import Users
 
 class Room(models.Model):
     owner = models.ForeignKey(Users, on_delete=models.SET_NULL, null=True, related_name='room_owner')
-    book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True, related_name='room_book')
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
     participants = models.ManyToManyField(Users, related_name='room_participants', blank=True)

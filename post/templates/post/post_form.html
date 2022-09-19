@@ -29,14 +29,14 @@
 
           <div class="form__group">
             <label for="room_topic">Enter a book name</label>
-            <input required type="text" value="{{post.book.name}}" name="book" list="topic-list" />
-            <datalist id="topic-list">
+            <!--<input required type="text" value="{{post.book.name}}" name="book" list="topic-list" />
+            <datalist id="topic-list">-->
               <select class="js-example-basic-multiple" name="books">
                 {% for book in books %}
                 <option value="{{book.name}}">{{book.name}}</option>
                 {% endfor %}
               </select>
-            </datalist>
+            <!--</datalist>-->
           </div>
 
 
@@ -63,7 +63,8 @@
     <script>
         $(document).ready(function () {
             $(".js-example-basic-multiple").select2({
-                tags: true
+                tags: true,
+                dropdownParent: $('.form__group')
             })
         });
     </script>

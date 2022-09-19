@@ -26,7 +26,7 @@ class CreatePostView(View):
         form = PostForm(request.POST)
         books = Book.objects.all()
         book_name = request.POST.get('book')
-        book, created = Book.objects.get_or_create(name=book_name)
+        book, created = Book.objects.get_or_create(defaults={'name': book_name}, name__iexact=book_name)
 
         post = Post.objects.create(
             owner=request.user,
@@ -102,7 +102,8 @@ class UpdatePostView(View):
             return HttpResponse('You cannot make changes. You are not the owner of the post.')
 
         book_name = request.POST.get('book')
-        book, created = Book.objects.get_or_create(name=book_name)
+        book, created = Book.objects.get_or_create(defaults={'name': book_name}, name__iexact=book_name)
+        print(created)
 
         post.book = book
         post.name = request.POST.get('name')

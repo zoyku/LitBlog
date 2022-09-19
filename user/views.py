@@ -1,9 +1,8 @@
-import logging
 
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
@@ -14,8 +13,6 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from .forms import UserRegisterForm, UserEditForm, UserSecurityForm
 from django.utils.decorators import method_decorator
-import logging
-import logging.handlers
 
 
 # Create your views here.
@@ -36,11 +33,13 @@ class HomeView(View):
         rooms = Room.objects.filter(Q(book__name__icontains=param) |
                                     Q(name__icontains=param))
 
-        books = Book.objects.filter(name__icontains=param)
+        books = Book.objects.annotate(post_count=Count('post_book', distinct=True),
+                                      room_count=Count('room_book', distinct=True)).filter(name__icontains=param)
+
+        item_count = posts.count() + rooms.count()
 
         post_paginator = Paginator(posts, 5)
         book_paginator = Paginator(books, 10)
-        # users = Users.objects.all()
         room_paginator = Paginator(rooms, 7)
         post_page = request.GET.get('post_page')
         book_page = request.GET.get('book_page')
@@ -61,7 +60,7 @@ class HomeView(View):
         book_page_obj = book_paginator.get_page(book_page)
         room_page_obj = room_paginator.get_page(room_page)
         context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj,
-                   'room_page_obj': room_page_obj, 'posts': posts}
+                   'room_page_obj': room_page_obj, 'posts': posts, 'item_count': item_count}
         return render(request, 'user/home.html', context)
 
 
@@ -127,8 +126,18 @@ class UserProfileView(View):
     def get(self, request, user_id):
         user = get_object_or_404(Users, id=user_id)
         posts = user.post_owner.all()
-        books = Book.objects.filter(Q(post_book__owner=user) | Q(room__owner=user) | Q(room__participants=user)).distinct()
-        rooms = Room.objects.filter(Q(owner=user) | Q(participants=user))
+        books = Book.objects.annotate(post_count=Count('post_book', filter=Q(post_book__owner=user),
+                                                       distinct=True), room_count=Count('room_book',
+                                                                                        filter=(
+                                                                                                    Q(room_book__owner=user) |
+                                                                                                    Q(room_book__participants=user)),
+                                                                                        distinct=True)).filter(
+                                                                                                                Q(post_book__owner=user) |
+                                                                                                                Q(room_book__owner=user) |
+                                                                                                                Q(room_book__participants=user))
+
+        rooms = Room.objects.filter(Q(owner=user) | Q(participants=user)).distinct()
+        item_count = posts.__len__() + rooms.__len__()
 
         post_paginator = Paginator(posts, 5)
         book_paginator = Paginator(books, 10)
@@ -152,7 +161,7 @@ class UserProfileView(View):
         book_page_obj = book_paginator.get_page(book_page)
         room_page_obj = room_paginator.get_page(room_page)
         context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'room_page_obj': room_page_obj,
-                   'posts': posts, 'user': user}
+                   'posts': posts, 'user': user, 'item_count': item_count}
         return render(request, 'user/profile.html', context)
 
 

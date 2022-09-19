@@ -34,6 +34,7 @@ class RoomView(View):
             body=request.POST.get('body')
         )
         room.participants.add(request.user)
+        room.save()
 
         if new_message is not None:
             return redirect('room', room_id=room.id)
@@ -57,7 +58,7 @@ class CreateRoomView(View):
         form = RoomForm()
         books = Book.objects.all()
         book_name = request.POST.get('book')
-        book, created = Book.objects.get_or_create(name=book_name)
+        book, created = Book.objects.get_or_create(defaults={'name': book_name}, name__iexact=book_name)
 
         room = Room.objects.create(
             owner=request.user,
@@ -92,7 +93,7 @@ class UpdateRoomView(View):
         books = Book.objects.all()
 
         book_name = request.POST.get('book')
-        book, created = Book.objects.get_or_create(name=book_name)
+        book, created = Book.objects.get_or_create(defaults={'name': book_name}, name__iexact=book_name)
         room.name = request.POST.get('name')
         room.book = book
         room.description = request.POST.get('description')
@@ -123,4 +124,26 @@ class DeleteRoomView(View):
             book = Book.objects.get(id=room.book_id)
             book.delete()
         return redirect('profile', user_id=room.owner_id)
+
+
+class LeaveRoomView(View):
+    @method_decorator(login_required(login_url='login'))
+    def get(self, request, room_id):
+        room = get_object_or_404(Room, id=room_id)
+
+        return render(request, 'room/leave_room.html', {'obj': room})
+
+    @method_decorator(login_required(login_url='login'))
+    @method_decorator(csrf_protect)
+    def post(self, request, room_id):
+        room = get_object_or_404(Room, id=room_id)
+
+        room.participants.remove(request.user)
+
+        chats = Chat.objects.filter(owner=request.user)
+
+        for chat in chats:
+            chat.delete()
+
+        return redirect('profile', user_id=request.user.id)
 
