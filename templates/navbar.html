@@ -23,7 +23,7 @@
             <div class="header__user">
                 <a href="{% url 'profile' request.user.id %}">
                     <div class="avatar avatar--medium active">
-                        <img src="../../static/images{{request.user.photo.url}}" />
+                        <img src="{{request.user.photo.url}}" />
                     </div>
                     <p>{{request.user.username}} <span>@{{request.user.username}}</span></p>
                 </a>
@@ -44,7 +44,7 @@
             {% endif %}
 
             <div class="dropdown-menu">
-                <a href="" class="dropdown-link"><svg version="1.1"
+                <a href="{% url 'edit-profile' request.user.id %}" class="dropdown-link"><svg version="1.1"
                         xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                         <title>tools</title>
                         <path

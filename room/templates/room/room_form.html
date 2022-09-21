@@ -22,15 +22,12 @@
           {% csrf_token %}
 
           <div class="form__group">
-            <label for="room_topic">Enter a Book Name</label>
-            <input required type="text" value="{{room.book.name}}" name="book" list="topic-list" />
-            <datalist id="topic-list">
-              <select id="room_topic">
-                {% for book in books %}
-                <option value="{{book.name}}">{{book.name}}</option>
-                {% endfor %}
+              <label for="room_topic">Enter a book name</label>
+              <select id="book-select" name="book">
+                  {% for book in books %}
+                      <option value="{{ book.name }}">{{ book.name }}</option>
+                  {% endfor %}
               </select>
-            </datalist>
           </div>
 
 
@@ -67,4 +64,14 @@
     </div>
   </div>
 </main>
+
+    <script>
+        $(document).ready(function () {
+            $("#book-select").select2({
+                theme: "flat",
+                tags: true,
+                placeholder: "Select a book"
+            });
+        });
+    </script>
 {% endblock content %}

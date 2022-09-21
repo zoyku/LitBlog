@@ -1,3 +1,4 @@
+{% load static %}
 <div style="padding: 20px 0 20px 120px">
 <div class="participants" style="width: 63.5%">
     <h3 class="participants__top">Comments</h3>
@@ -5,13 +6,13 @@
     {% csrf_token %}
         {% for comment in comments %}
             <a href="{% url 'profile' comment.owner.id %}" class="participant">
-                {% if post.owner.online %}
+                {% if comment.owner.online %}
                     <div class="avatar avatar--medium active">
-                        <img src="../../../static/images{{ post.owner.photo.url }}"/>
+                        <img src="{{ comment.owner.photo.url }}"/>
                     </div>
                 {% else %}
                     <div class="avatar avatar--medium">
-                        <img src="../../../static/images{{ post.owner.photo.url }}"/>
+                        <img src="{{ comment.owner.photo.url }}"/>
                     </div>
                 {% endif %}
                 <span>@{{ comment.owner.username }}</span>

@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_protect
 
-from post.models import Book
+from post.models import Book, Post
 from room.forms import RoomForm
 from room.models import Room, Chat
 
@@ -119,7 +119,7 @@ class DeleteRoomView(View):
 
         room.delete()
         book_id = room.book_id
-        book_count = Room.objects.filter(book_id=book_id).count()
+        book_count = Room.objects.filter(book_id=book_id).count() + Post.objects.filter(book_id=book_id).count()
         if book_count == 0:
             book = Book.objects.get(id=room.book_id)
             book.delete()
@@ -147,3 +147,16 @@ class LeaveRoomView(View):
 
         return redirect('profile', user_id=request.user.id)
 
+
+class DeleteChatView(View):
+    @method_decorator(login_required(login_url='login'))
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        chat_id = int(request.POST.get('chat_id', None))
+        chat = get_object_or_404(Chat, id=chat_id)
+        chat.delete()
+
+        chats = Chat.objects.filter(room_id=chat.room_id)
+        context = {'chats': chats}
+
+        return render(request, 'room/chat.html', context)

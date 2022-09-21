@@ -4,11 +4,11 @@
         <a href="{% url 'profile' post.owner_id %}" class="roomListRoom__author">
             {% if post.owner.online %}
             <div class="avatar avatar--small active">
-                <img src="../../static/images{{ post.owner.photo.url }}" />
+                <img src="{{ post.owner.photo.url }}" />
             </div>
             {% else %}
             <div class="avatar avatar--small">
-                <img src="../../static/images{{ post.owner.photo.url }}" />
+                <img src="{{ post.owner.photo.url }}" />
             </div>
             {% endif %}
             <span>@{{post.owner.username}}</span>
@@ -29,7 +29,7 @@
         </a>
         <div>
             {{ post.rating }}
-            <i class="fa-sharp fa-solid fa-heart fa-custom-style"></i>
+            <i class="fa-sharp fa-regular fa-heart fa-custom-style"></i>
         </div>
     </div>
 </div>

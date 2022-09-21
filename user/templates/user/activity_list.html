@@ -8,11 +8,11 @@
             <a href="{% url 'profile' room.owner.id %}" class="roomListRoom__author">
                 {% if room.owner.online %}
                     <div class="avatar avatar--small active">
-                        <img src="../../static/images{{ room.owner.photo.url }}"/>
+                        <img src="{{ room.owner.photo.url }}"/>
                     </div>
                 {% else %}
                     <div class="avatar avatar--small">
-                        <img src="../../static/images{{ room.owner.photo.url }}"/>
+                        <img src="{{ room.owner.photo.url }}"/>
                     </div>
                 {% endif %}
                 <p>

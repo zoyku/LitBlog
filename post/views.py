@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_protect
 
+from room.models import Room
 from .forms import PostForm, CommentForm
 from .models import Post, Comment, Book
 
@@ -101,7 +102,7 @@ class UpdatePostView(View):
         if self.request.user != post.owner:
             return HttpResponse('You cannot make changes. You are not the owner of the post.')
 
-        book_name = request.POST.get('book')
+        book_name = request.POST.get('book', None)
         book, created = Book.objects.get_or_create(defaults={'name': book_name}, name__iexact=book_name)
         print(created)
 
@@ -131,7 +132,7 @@ class DeletePostView(View):
 
         post.delete()
         book_id = post.book_id
-        book_count = Post.objects.filter(book_id=book_id).count()
+        book_count = Post.objects.filter(book_id=book_id).count() + Room.objects.filter(book_id=book_id).count()
         if book_count == 0:
             book = Book.objects.get(id=post.book_id)
             book.delete()

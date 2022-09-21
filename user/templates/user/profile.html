@@ -13,11 +13,11 @@
                     <div class="profile__avatar">
                         {% if user.online %}
                             <div class="avatar avatar--large active">
-                                <img src="../../static/images{{ user.photo.url }}"/>
+                                <img src="{{ user.photo.url }}"/>
                             </div>
                         {% else %}
                             <div class="avatar avatar--large ">
-                                <img src="../../static/images{{ user.photo.url }}"/>
+                                <img src="{{ user.photo.url }}"/>
                             </div>
                         {% endif %}
                     </div>
