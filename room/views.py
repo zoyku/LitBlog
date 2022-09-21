@@ -6,9 +6,10 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_protect
 
-from post.models import Book, Post
+from post.models import Post
 from room.forms import RoomForm
 from room.models import Room, Chat
+from user.models import Book
 
 
 class RoomView(View):

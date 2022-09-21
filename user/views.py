@@ -7,8 +7,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
 from room.models import Room
-from .models import Users
-from post.models import Post, Book
+from .models import Users, Book
+from post.models import Post
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from .forms import UserRegisterForm, UserEditForm, UserSecurityForm
@@ -203,3 +203,4 @@ class UserSecurityEditView(View):
             return redirect('profile', user_id=user.id)
 
         return render(request, 'user/edit_user.html', {'form': form})
+

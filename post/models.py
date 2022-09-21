@@ -1,15 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from user.models import Users
-
-
-class Book(models.Model):
-    name = models.CharField(max_length=200)
-    author = models.ForeignKey(to='user.Author', on_delete=models.PROTECT, null=True)
-
-    def __str__(self):
-        return self.name
+from user.models import Users, Book
 
 
 class Post(models.Model):

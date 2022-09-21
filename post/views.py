@@ -9,8 +9,9 @@ from django.views import View
 from django.views.decorators.csrf import csrf_protect
 
 from room.models import Room
+from user.models import Book
 from .forms import PostForm, CommentForm
-from .models import Post, Comment, Book
+from .models import Post, Comment
 
 
 class CreatePostView(View):

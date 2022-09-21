@@ -23,3 +23,10 @@ class Users(AbstractUser):
 class Author(models.Model):
     user = models.ForeignKey(to='user.Users', on_delete=models.PROTECT)
 
+
+class Book(models.Model):
+    name = models.CharField(max_length=200)
+    author = models.ForeignKey(to='user.Author', on_delete=models.PROTECT, null=True)
+
+    def __str__(self):
+        return self.name
