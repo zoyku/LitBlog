@@ -6,6 +6,7 @@ from user.models import Users
 
 class Book(models.Model):
     name = models.CharField(max_length=200)
+    author = models.ForeignKey(to='user.Author', on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return self.name
@@ -20,6 +21,7 @@ class Post(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
     likes = models.ManyToManyField(Users, related_name="post_likes")
+    is_approved = models.BooleanField(default=0)
 
     class Meta:
         ordering = ['-updated', '-created']

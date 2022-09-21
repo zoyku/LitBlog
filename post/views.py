@@ -162,16 +162,16 @@ class RatePostView(View):
 
 class DeleteCommentView(View):
     @method_decorator(login_required(login_url='login'))
-    def get(self, request, post_id):
-        comment = get_object_or_404(Comment, id=post_id)
+    def get(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
 
         return render(request, 'post/delete_comment.html', {'obj': comment})
 
     @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
-    def post(self, request, post_id):
-        comment = get_object_or_404(Comment, id=post_id)
-        p = comment.post_id
+    def post(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        post_id = comment.post_id
 
         if comment is not None:
             comment.delete()
@@ -179,4 +179,22 @@ class DeleteCommentView(View):
 
         return render(request, 'post/delete_comment.html', {'obj': comment})
 
+
+class ApprovePostView(View):
+    @method_decorator(login_required(login_url='login'))
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        post_id = int(request.POST.get('post_id', None))
+
+        post = Post.objects.get(id=post_id)
+        is_approved = post.approved
+
+        if is_approved:
+            post.approved = 0
+            post.save()
+        elif not is_approved:
+            post.is_approved = 1
+            post.save()
+
+        return JsonResponse({'approved': post.approved})
 

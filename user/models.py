@@ -11,9 +11,15 @@ class Users(AbstractUser):
     updated = models.DateTimeField(auto_now=True)
     photo = models.ImageField(default="avatar.svg")
     online = models.BooleanField(default=0)
+    is_author = models.BooleanField(default=0)
 
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
 
     class Meta:
         ordering = ['-updated', '-date_joined']
+
+
+class Author(models.Model):
+    user = models.ForeignKey(to='user.Users', on_delete=models.PROTECT)
+

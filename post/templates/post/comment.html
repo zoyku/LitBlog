@@ -17,6 +17,7 @@
                 {% endif %}
                 <span>@{{ comment.owner.username }}</span>
             </a>
+            <div style="display: flex; justify-content: space-between; padding: 0px 10px">
             <div class="participant">
                 <p>{{ comment.body }} </p>
             </div>
@@ -33,6 +34,7 @@
                     </a>
                 </div>
             {% endif %}
+            </div>
         {% endfor %}
         <form class="form" action="" method="POST">
             {% csrf_token %}

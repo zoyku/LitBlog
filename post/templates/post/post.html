@@ -74,6 +74,11 @@
             </a>
           </div>
           <span class="room__topics">{{post.book}}</span>
+            {% if request.user == post.book.author %}
+                <button onclick="approve_post({{ post.id }})" style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="approved" class="{% if post.approved %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up fa-lg"></i></button>
+            {% else %}
+                <i class="{% if post.approved %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up fa-lg"></i>
+            {% endif %}
             {% if request.user.is_authenticated %}
                 {% csrf_token %}
                 <div style="display: flex; padding-top: 7px">
@@ -149,6 +154,25 @@
                         $("#liked").removeClass( "fa-solid" ).addClass( "fa-regular" );
                     } else {
                         $("#liked").removeClass( "fa-regular" ).addClass( "fa-solid" );
+                    }
+                },
+                error(data){
+                    console.log(data)
+                },
+            });
+        }
+        function approve_post(post_id){
+            $.ajax({
+                type: 'POST',
+                data: { "post_id": post_id,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                url: "{% url 'approve-post' %}",
+                success(){
+                    if($("#approved").hasClass("fa-solid")){
+                        $("#approved").removeClass( "fa-solid" ).addClass( "fa-regular" );
+                    } else {
+                        $("#approved").removeClass( "fa-regular" ).addClass( "fa-solid" );
                     }
                 },
                 error(data){

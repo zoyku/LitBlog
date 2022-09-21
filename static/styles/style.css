@@ -530,6 +530,8 @@ a {
   background-color: var(--color-dark);
   color: var(--color-light);
   padding: 0 10rem;
+  height: 20rem;
+  overflow: scroll;
 }
 
 .select2-search__field{
@@ -546,6 +548,7 @@ a {
   background-color: var(--color-dark);
   color: var(--color-light);
 }
+
 
 .form__group textarea {
   background: transparent;
