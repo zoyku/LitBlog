@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,19 +11,18 @@ from django.views.decorators.csrf import csrf_protect
 
 from room.models import Room
 from user.models import Book
+from .decorator import author_required
 from .forms import PostForm, CommentForm
 from .models import Post, Comment
 
 
-class CreatePostView(View):
-    @method_decorator(login_required(login_url='login'))
+class CreatePostView(LoginRequiredMixin, View):
     def get(self, request):
         form = PostForm()
         books = Book.objects.all()
         context = {"form": form, 'books': books}
         return render(request, 'post/post_form.html', context)
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request):
         form = PostForm(request.POST)
@@ -50,6 +50,7 @@ class PostView(View):
         post = get_object_or_404(Post, id=post_id)
         comments = post.comment_set.all()
         form = CommentForm(request.POST)
+        author = post.book.author.user if post.book.author is not None else None
 
         user_id = request.user.id
         user_likes = post.likes.all()
@@ -57,7 +58,7 @@ class PostView(View):
 
         liked = 1 if is_there == 1 else 0
 
-        context = {'post': post, 'comments': comments, "form": form, "liked": liked}
+        context = {'post': post, 'comments': comments, "form": form, "liked": liked, 'author': author}
         return render(request, 'post/post.html', context)
 
     @method_decorator(login_required(login_url='login'))
@@ -84,8 +85,7 @@ class PostView(View):
         return render(request, 'post/post.html', context)
 
 
-class UpdatePostView(View):
-    @method_decorator(login_required(login_url='login'))
+class UpdatePostView(LoginRequiredMixin, View):
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         form = PostForm(instance=post)
@@ -94,7 +94,6 @@ class UpdatePostView(View):
         context = {'form': form, 'books': books, 'post': post}
         return render(request, 'post/post_form.html', context)
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
@@ -105,7 +104,6 @@ class UpdatePostView(View):
 
         book_name = request.POST.get('book', None)
         book, created = Book.objects.get_or_create(defaults={'name': book_name}, name__iexact=book_name)
-        print(created)
 
         post.book = book
         post.name = request.POST.get('name')
@@ -119,14 +117,12 @@ class UpdatePostView(View):
         return render(request, 'post/post_form.html', context)
 
 
-class DeletePostView(View):
-    @method_decorator(login_required(login_url='login'))
+class DeletePostView(LoginRequiredMixin, View):
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
 
         return render(request, 'post/delete_post.html', {'obj': post})
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
@@ -134,15 +130,13 @@ class DeletePostView(View):
         post.delete()
         book_id = post.book_id
         book_count = Post.objects.filter(book_id=book_id).count() + Room.objects.filter(book_id=book_id).count()
-        if book_count == 0:
-            book = Book.objects.get(id=post.book_id)
+        book = Book.objects.get(id=post.book_id)
+        if book_count == 0 and book.author is None:
             book.delete()
         return redirect('profile', user_id=post.owner_id)
 
 
-class RatePostView(View):
-
-    @method_decorator(login_required(login_url='login'))
+class RatePostView(LoginRequiredMixin, View):
     @method_decorator(csrf_protect)
     def post(self, request):
         post_id = int(request.POST.get('post_id', None))
@@ -161,14 +155,12 @@ class RatePostView(View):
         return JsonResponse({'rate': post.rating})
 
 
-class DeleteCommentView(View):
-    @method_decorator(login_required(login_url='login'))
+class DeleteCommentView(LoginRequiredMixin, View):
     def get(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
 
         return render(request, 'post/delete_comment.html', {'obj': comment})
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
@@ -181,21 +173,21 @@ class DeleteCommentView(View):
         return render(request, 'post/delete_comment.html', {'obj': comment})
 
 
-class ApprovePostView(View):
-    @method_decorator(login_required(login_url='login'))
+class ApprovePostView(LoginRequiredMixin, View):
+    @method_decorator(author_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request):
         post_id = int(request.POST.get('post_id', None))
 
         post = Post.objects.get(id=post_id)
-        is_approved = post.approved
+        is_approved = post.is_approved
 
         if is_approved:
-            post.approved = 0
+            post.is_approved = False
             post.save()
         elif not is_approved:
-            post.is_approved = 1
+            post.is_approved = True
             post.save()
 
-        return JsonResponse({'approved': post.approved})
+        return JsonResponse({'approved': post.is_approved})
 

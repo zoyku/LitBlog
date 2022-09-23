@@ -28,6 +28,8 @@
             </svg>
         </a>
         <div>
+            {% if post.is_approved %} Approved by the author {% endif %}
+            <i style="margin: 0 5px" class="{% if post.is_approved %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up fa-lg"></i>
             {{ post.rating }}
             <i class="fa-sharp fa-regular fa-heart fa-custom-style"></i>
         </div>

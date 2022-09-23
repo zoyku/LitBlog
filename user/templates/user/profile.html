@@ -4,7 +4,9 @@
     <main class="profile-page layout layout--3">
         <div class="container">
             <!-- Topics Start -->
+        <div>
             {% include 'user/books_list.html' %}
+        </div>
             <!-- Topics End -->
 
             <!-- Room List Start -->
@@ -26,7 +28,7 @@
                         <p>@{{ user.username }}</p>
                         {% if request.user == user %}
                             <a href="{% url 'edit-profile' user.id %}" class="btn btn--main btn--pill">Edit Profile</a>
-                            <a href="" class="btn btn--main btn--pill">Are you an author?</a>
+                            <a href="{% url 'register-book' user.id %}" class="btn btn--main btn--pill">Are you an author?</a>
                         {% endif %}
                     </div>
                     <div class="profile__about">
@@ -34,6 +36,12 @@
                         <p>
                             {{ user.bio }}
                         </p>
+                        {% if user.is_author %}
+                            <h3>Books</h3>
+                            {% for book in author_books %}
+                                <li><a href="{% url 'home' %}?param={{ book.name }}">{{ book.name }}</a></li>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
 
@@ -56,13 +64,12 @@
                 </div>
 
                 {% include 'user/post_list.html' %}
-
-
             </div>
             <!-- Room List End -->
 
             <!-- Activities Start -->
             <div>
+                {% if request.user == user %}
                 <a style="margin-bottom: 10px;" class="btn btn--main" href="{% url 'create-room' %}">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                         <title>add</title>
@@ -72,6 +79,7 @@
                     </svg>
                     Create Room
                 </a>
+                {% endif %}
                 {% include 'user/activity_list.html' %}
             </div>
             <!-- Activities End -->

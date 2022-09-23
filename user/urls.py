@@ -9,4 +9,5 @@ urlpatterns = [
     path('profile/<str:user_id>/', views.UserProfileView.as_view(), name="profile"),
     path('edit-profile/<str:user_id>/', views.UserProfileEditView.as_view(), name="edit-profile"),
     path('edit-security/<str:user_id>/', views.UserSecurityEditView.as_view(), name="edit-security"),
+    path('register-book/<str:user_id>/', views.RegisterAsAuthor.as_view(), name="register-book"),
 ]

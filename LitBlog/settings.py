@@ -180,3 +180,5 @@ LOGGING_CONFIG = None
 
 CSRF_COOKIE_SECURE = False
 
+LOGIN_URL = 'login'
+

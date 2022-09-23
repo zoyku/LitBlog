@@ -1,17 +1,18 @@
 
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
 from room.models import Room
-from .models import Users, Book
+from .models import Users, Book, Author
 from post.models import Post
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
-from .forms import UserRegisterForm, UserEditForm, UserSecurityForm
+from .forms import UserRegisterForm, UserEditForm, UserSecurityForm, BookRegisterForm
 from django.utils.decorators import method_decorator
 
 
@@ -114,7 +115,7 @@ class RegisterView(View):
         return render(request, 'user/register.html', {"form": form})
 
 
-class UserLogoutView(View):
+class UserLogoutView(LoginRequiredMixin, View):
     def get(self, request):
         request.user.online = 0
         request.user.save()
@@ -139,6 +140,8 @@ class UserProfileView(View):
         rooms = Room.objects.filter(Q(owner=user) | Q(participants=user)).distinct()
         item_count = posts.__len__() + rooms.__len__()
 
+        author_books = Book.objects.filter(author__user=user)
+
         post_paginator = Paginator(posts, 5)
         book_paginator = Paginator(books, 10)
         room_paginator = Paginator(rooms, 7)
@@ -161,19 +164,17 @@ class UserProfileView(View):
         book_page_obj = book_paginator.get_page(book_page)
         room_page_obj = room_paginator.get_page(room_page)
         context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'room_page_obj': room_page_obj,
-                   'posts': posts, 'user': user, 'item_count': item_count}
+                   'posts': posts, 'user': user, 'item_count': item_count, 'author_books': author_books}
         return render(request, 'user/profile.html', context)
 
 
-class UserProfileEditView(View):
-    @method_decorator(login_required(login_url='login'))
+class UserProfileEditView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         user = Users.objects.get(id=user_id)
         form = UserEditForm(instance=user)
 
         return render(request, 'user/edit_user.html', {'form': form})
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, user_id):
         user = Users.objects.get(id=user_id)
@@ -185,18 +186,16 @@ class UserProfileEditView(View):
         return render(request, 'user/edit_user.html', {'form': form})
 
 
-class UserSecurityEditView(View):
-    @method_decorator(login_required(login_url='login'))
+class UserSecurityEditView(LoginRequiredMixin, View):
     def get(self, request, user_id):
-        user = Users.objects.get(id=user_id)
+        user = get_object_or_404(Users, id=user_id)
         form = UserSecurityForm(instance=user)
 
         return render(request, 'user/edit_user.html', {'form': form})
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, user_id):
-        user = Users.objects.get(id=user_id)
+        user = get_object_or_404(Users, id=user_id)
         form = UserSecurityForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
@@ -204,3 +203,23 @@ class UserSecurityEditView(View):
 
         return render(request, 'user/edit_user.html', {'form': form})
 
+
+class RegisterAsAuthor(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        form = BookRegisterForm()
+
+        return render(request, 'user/book_form.html', {'form': form})
+
+    @method_decorator(csrf_protect)
+    def post(self, request, user_id):
+        user = get_object_or_404(Users, id=user_id)
+        form = BookRegisterForm()
+        book_name = request.POST.get('name')
+        book, created = Book.objects.get_or_create(defaults={'name': book_name}, name__iexact=book_name)
+        author, created = Author.objects.get_or_create(user=user)
+        author.save()
+        user.is_author = True
+        user.save()
+        book.author = author
+        book.save()
+        return redirect('profile', user_id=user.id)

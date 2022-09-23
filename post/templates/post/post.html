@@ -74,10 +74,10 @@
             </a>
           </div>
           <span class="room__topics">{{post.book}}</span>
-            {% if request.user == post.book.author %}
-                <button onclick="approve_post({{ post.id }})" style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="approved" class="{% if post.approved %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up fa-lg"></i></button>
+            {% if request.user == author %}
+                <button id="approve-button" onclick="approve_post({{ post.id }})" style="margin-left: 3px; color: #b2bdbd; background: transparent; border: none"><i id="approved" class="{% if post.is_approved %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up fa-lg"></i></button>
             {% else %}
-                <i class="{% if post.approved %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up fa-lg"></i>
+                <i class="{% if post.is_approved %} fa-solid {% else %} fa-regular {% endif %} fa-thumbs-up fa-lg"></i>
             {% endif %}
             {% if request.user.is_authenticated %}
                 {% csrf_token %}
@@ -89,7 +89,7 @@
             {% else %}
                 <div>
                     {{ post.rating }}
-                    <i class="fa-sharp fa-solid fa-heart fa-custom-style"></i>
+                    <i class="fa-sharp fa-regular fa-heart fa-custom-style"></i>
                 </div>
             {% endif %}
         </div>
@@ -135,6 +135,12 @@
     {% include 'post/comment.html' %}
     <style>
         .rate-button:hover{
+            transform: scale(1.3);
+        }
+    </style>
+
+    <style>
+        #approve-button:hover{
             transform: scale(1.3);
         }
     </style>

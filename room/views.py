@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 
 # Create your views here.
@@ -12,8 +13,7 @@ from room.models import Room, Chat
 from user.models import Book
 
 
-class RoomView(View):
-    @method_decorator(login_required(login_url='login'))
+class RoomView(LoginRequiredMixin, View):
     def get(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
         chats = room.chat_set.all()
@@ -22,7 +22,6 @@ class RoomView(View):
         context = {'room': room, 'chats': chats, 'participants': participants}
         return render(request, 'room/room.html', context)
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
@@ -44,8 +43,7 @@ class RoomView(View):
         return render(request, 'room/room.html', context)
 
 
-class CreateRoomView(View):
-    @method_decorator(login_required(login_url='login'))
+class CreateRoomView(LoginRequiredMixin, View):
     def get(self, request):
         form = RoomForm()
         books = Book.objects.all()
@@ -53,7 +51,6 @@ class CreateRoomView(View):
         context = {'form': form, 'books': books}
         return render(request, 'room/room_form.html', context)
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request):
         form = RoomForm()
@@ -76,8 +73,7 @@ class CreateRoomView(View):
         return render(request, 'room/room_form.html', context)
 
 
-class UpdateRoomView(View):
-    @method_decorator(login_required(login_url='login'))
+class UpdateRoomView(LoginRequiredMixin, View):
     def get(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
         form = RoomForm(instance=room)
@@ -86,7 +82,6 @@ class UpdateRoomView(View):
         context = {'form': form, 'books': books}
         return render(request, 'room/room_form.html', context)
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
@@ -106,14 +101,12 @@ class UpdateRoomView(View):
         return render(request, 'room/room_form.html', context)
 
 
-class DeleteRoomView(View):
-    @method_decorator(login_required(login_url='login'))
+class DeleteRoomView(LoginRequiredMixin, View):
     def get(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
 
         return render(request, 'room/delete_room.html', {'obj': room})
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
@@ -127,14 +120,12 @@ class DeleteRoomView(View):
         return redirect('profile', user_id=room.owner_id)
 
 
-class LeaveRoomView(View):
-    @method_decorator(login_required(login_url='login'))
+class LeaveRoomView(LoginRequiredMixin, View):
     def get(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
 
         return render(request, 'room/leave_room.html', {'obj': room})
 
-    @method_decorator(login_required(login_url='login'))
     @method_decorator(csrf_protect)
     def post(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
@@ -149,8 +140,7 @@ class LeaveRoomView(View):
         return redirect('profile', user_id=request.user.id)
 
 
-class DeleteChatView(View):
-    @method_decorator(login_required(login_url='login'))
+class DeleteChatView(LoginRequiredMixin, View):
     @method_decorator(csrf_protect)
     def post(self, request):
         chat_id = int(request.POST.get('chat_id', None))
