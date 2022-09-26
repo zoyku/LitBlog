@@ -185,7 +185,7 @@ class ApprovePostView(LoginRequiredMixin, View):
         if is_approved:
             post.is_approved = False
             post.save()
-        elif not is_approved:
+        else:
             post.is_approved = True
             post.save()
 

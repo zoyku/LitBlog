@@ -40,12 +40,18 @@
 <div class="pagination">
     <span class="step-links">
         {% if post_page_obj.has_previous %}
-            <a href="{% url 'home' %}?post_page=1">&laquo;</a>
+            <a href="{% url 'home' %}?post_page=1" style="font-size: 25px">&laquo;</a>
             <a href="{% url 'home' %}?post_page={{ post_page_obj.previous_page_number }}">&lt;</a>
         {% endif %}
         {% if post_page_obj.has_next %}
             <a href="{% url 'home' %}?post_page={{ post_page_obj.next_page_number }}">&gt;</a>
-            <a href="{% url 'home' %}?post_page={{ post_page_obj.paginator.num_pages }}">&raquo;</a>
+            <a href="{% url 'home' %}?post_page={{ post_page_obj.paginator.num_pages }}" style="font-size: 25px">&raquo;</a>
         {% endif %}
     </span>
 </div>
+
+<style>
+    .pagination a{
+        font-size: 20px;
+    }
+</style>
