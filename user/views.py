@@ -147,24 +147,23 @@ class UserProfileView(View):
         zeroth = user_labeled_data.count(0)
         first = user_labeled_data.count(1)
 
-        print(first)
-        print(zeroth)
-        print(all_labeled_data)
+        possible_rooms = []
 
-        if first >= zeroth:
+        if first > zeroth:
             for i in range(len(all_labeled_data)):
                 if all_labeled_data[i][2] == 0:
-                    all_rooms = all_rooms.exclude(name=all_rooms[i].name)
-                    i -= 1
-                    print(all_rooms)
+                    possible_rooms += [all_rooms[i]]
         else:
             for i in range(len(all_labeled_data)):
                 if all_labeled_data[i][2] == 1:
-                    all_rooms = all_rooms.exclude(name=all_rooms[i].name)
-                    i -= 1
-                    print(all_rooms)
+                    possible_rooms += [all_rooms[i]]
 
-        print(all_rooms)
+        recommended_rooms = []
+        for room in possible_rooms:
+            if room.owner == user or (room.participants.get(users_id=user.id) is not None):
+                continue
+            else:
+                recommended_rooms += [room]
 
         item_count = posts.__len__() + rooms.__len__()
 
