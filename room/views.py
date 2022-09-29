@@ -16,7 +16,7 @@ from user.models import Book
 class RoomView(LoginRequiredMixin, View):
     def get(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
-        chats = room.chat_set.all()
+        chats = room.chat_room.all()
         participants = room.participants.all()
 
         context = {'room': room, 'chats': chats, 'participants': participants}
@@ -25,7 +25,7 @@ class RoomView(LoginRequiredMixin, View):
     @method_decorator(csrf_protect)
     def post(self, request, room_id):
         room = get_object_or_404(Room, id=room_id)
-        chats = room.chat_set.all()
+        chats = room.chat_room.all()
         participants = room.participants.all()
 
         new_message = Chat.objects.create(

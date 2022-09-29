@@ -1,6 +1,5 @@
 
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
@@ -14,7 +13,8 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from .forms import UserRegisterForm, UserEditForm, UserSecurityForm, BookRegisterForm
 from django.utils.decorators import method_decorator
-
+from user.kmeans import kmeans
+# import matplotlib.pyplot as plt
 
 # Create your views here.
 
@@ -136,6 +136,25 @@ class UserProfileView(View):
                                                                                                                 Q(post_book__owner=user) |
                                                                                                                 Q(room_book__owner=user) |
                                                                                                                 Q(room_book__participants=user))
+
+        test_room = Room.objects.annotate(participant_count=Count('participants', distinct=True), chat_count=Count('chat_room', distinct=True))
+        test_list = []
+
+        for room in test_room:
+           test_list += [[room.participant_count, room.chat_count]]
+
+        kmeans(test_list)
+
+        # participants, chats, colors = kmeans(test_list)
+
+        # plt.scatter(participants, chats, color=colors)
+
+        # plt.xlabel('participants')
+        # plt.ylabel('chats')
+
+        # plt.title('Room')
+
+        # plt.show()
 
         rooms = Room.objects.filter(Q(owner=user) | Q(participants=user)).distinct()
         item_count = posts.__len__() + rooms.__len__()
