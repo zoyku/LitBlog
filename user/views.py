@@ -141,6 +141,7 @@ class UserProfileView(View):
                                           chat_count=Count('chat_room', distinct=True))
 
         rooms = Room.objects.filter(Q(owner=user) | Q(participants=user)).distinct()
+        not_rooms = Room.objects.filter(~Q(owner=user) | ~Q(participants=user)).distinct()
 
         all_labeled_data, user_labeled_data = kmeans(all_rooms, rooms)
 
@@ -160,10 +161,11 @@ class UserProfileView(View):
 
         recommended_rooms = []
         for room in possible_rooms:
-            if room.owner == user or (room.participants.get(users_id=user.id) is not None):
-                continue
+            for i in range(not_rooms.count()):
+                if room.id == not_rooms[i].id:
+                    recommended_rooms += [room]
             else:
-                recommended_rooms += [room]
+                continue
 
         item_count = posts.__len__() + rooms.__len__()
 
