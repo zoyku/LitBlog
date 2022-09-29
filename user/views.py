@@ -137,26 +137,35 @@ class UserProfileView(View):
                                                                                                                 Q(room_book__owner=user) |
                                                                                                                 Q(room_book__participants=user))
 
-        test_room = Room.objects.annotate(participant_count=Count('participants', distinct=True), chat_count=Count('chat_room', distinct=True))
-        test_list = []
-
-        for room in test_room:
-           test_list += [[room.participant_count, room.chat_count]]
-
-        kmeans(test_list)
-
-        # participants, chats, colors = kmeans(test_list)
-
-        # plt.scatter(participants, chats, color=colors)
-
-        # plt.xlabel('participants')
-        # plt.ylabel('chats')
-
-        # plt.title('Room')
-
-        # plt.show()
+        all_rooms = Room.objects.annotate(participant_count=Count('participants', distinct=True),
+                                          chat_count=Count('chat_room', distinct=True))
 
         rooms = Room.objects.filter(Q(owner=user) | Q(participants=user)).distinct()
+
+        all_labeled_data, user_labeled_data = kmeans(all_rooms, rooms)
+
+        zeroth = user_labeled_data.count(0)
+        first = user_labeled_data.count(1)
+
+        print(first)
+        print(zeroth)
+        print(all_labeled_data)
+
+        if first >= zeroth:
+            for i in range(len(all_labeled_data)):
+                if all_labeled_data[i][2] == 0:
+                    all_rooms = all_rooms.exclude(name=all_rooms[i].name)
+                    i -= 1
+                    print(all_rooms)
+        else:
+            for i in range(len(all_labeled_data)):
+                if all_labeled_data[i][2] == 1:
+                    all_rooms = all_rooms.exclude(name=all_rooms[i].name)
+                    i -= 1
+                    print(all_rooms)
+
+        print(all_rooms)
+
         item_count = posts.__len__() + rooms.__len__()
 
         author_books = Book.objects.filter(author__user=user)

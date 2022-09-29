@@ -1,8 +1,12 @@
 import random
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
-def kmeans(data_set):
+def kmeans(object_set, user_object_set):
+    data_set = []
+
+    for room in object_set:
+        data_set += [[room.participant_count, room.chat_count]]
 
     participants = []
     chats = []
@@ -25,7 +29,17 @@ def kmeans(data_set):
         get_labels(data_set, centroids)
         centroids = get_centroids(old_centroids, data_set)
 
-    print(data_set)
+    user_labels = []
+    # print(object_set)
+    # print(user_object_set)
+    for i in range(len(object_set)):
+        for k in range(len(user_object_set)):
+            if object_set[i] == user_object_set[k]:
+                user_labels += [data_set[i][2]]
+                break
+
+    # print(data_set)
+    # print(user_labels)
 
     colors = []
     participants = []
@@ -35,11 +49,11 @@ def kmeans(data_set):
         chats += [data[1]]
         colors += ['red' if data[2] == 0 else 'blue']
 
-    print(participants)
-    print(chats)
-    print(colors)
+    # print(participants)
+    # print(chats)
+    # print(colors)
 
-    return participants, chats, colors
+    return data_set, user_labels
 
 
 def get_centroids(old_centroids, data_set):
@@ -94,6 +108,13 @@ def get_labels(data_set, centroids):
 
     return data_set
 
+# participants, chats, colors = kmeans(test_list)
 
-if __name__=="__main__":
-    kmeans()
+# plt.scatter(participants, chats, color=colors)
+
+# plt.xlabel('participants')
+# plt.ylabel('chats')
+
+# plt.title('Room')
+
+# plt.show()
