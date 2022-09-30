@@ -43,3 +43,44 @@
     </div>
 
 </div>
+
+<br>
+
+{% if request.user == user %}
+
+<div class="activities">
+
+    {% if recommended_rooms %}
+    <div class="activities__header">
+        <h2>Recommended Rooms</h2>
+    </div>
+    {% endif %}
+    {% for room in recommended_rooms %}
+    <div class="activities__box">
+        <div class="activities__boxHeader roomListRoom__header">
+            <a href="{% url 'profile' room.owner.id %}" class="roomListRoom__author">
+                {% if room.owner.online %}
+                    <div class="avatar avatar--small active">
+                        <img src="{{ room.owner.photo.url }}"/>
+                    </div>
+                {% else %}
+                    <div class="avatar avatar--small">
+                        <img src="{{ room.owner.photo.url }}"/>
+                    </div>
+                {% endif %}
+                <p>
+                    @{{room.owner.username}}
+                    <span>updated {{room.updated|timesince}} ago</span>
+                    <span>created {{room.created|timesince}} ago</span>
+                </p>
+            </a>
+        </div>
+        <div class="activities__boxContent">
+            <p>“<a href="{% url 'room' room.id %}">{{room.name}}</a>”</p>
+            <div class="activities__boxRoomContent">{{room.description}}</div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{%  endif %}

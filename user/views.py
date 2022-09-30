@@ -31,6 +31,7 @@ class HomeView(View):
         posts = Post.objects.filter(Q(book__name__icontains=param) |
                                     Q(name__icontains=param))
 
+
         rooms = Room.objects.filter(Q(book__name__icontains=param) |
                                     Q(name__icontains=param))
 
@@ -141,7 +142,7 @@ class UserProfileView(View):
                                           chat_count=Count('chat_room', distinct=True))
 
         rooms = Room.objects.filter(Q(owner=user) | Q(participants=user)).distinct()
-        not_rooms = Room.objects.filter(~Q(owner=user) | ~Q(participants=user)).distinct()
+        not_rooms = Room.objects.filter(~Q(owner=user) & ~Q(participants=user)).distinct()
 
         all_labeled_data, user_labeled_data = kmeans(all_rooms, rooms)
 
@@ -193,7 +194,7 @@ class UserProfileView(View):
         book_page_obj = book_paginator.get_page(book_page)
         room_page_obj = room_paginator.get_page(room_page)
         context = {'post_page_obj': post_page_obj, 'book_page_obj': book_page_obj, 'room_page_obj': room_page_obj,
-                   'posts': posts, 'user': user, 'item_count': item_count, 'author_books': author_books}
+                   'posts': posts, 'user': user, 'item_count': item_count, 'author_books': author_books, 'recommended_rooms': recommended_rooms}
         return render(request, 'user/profile.html', context)
 
 
